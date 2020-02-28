@@ -1,9 +1,16 @@
 import Login from '@/pages/auth/Login.vue';
-import Register from '@/pages/auth/Register.vue';
 import Layout from '@/layouts/Index.vue';
 import DashboardApp from '@/pages/dashboard/Index.vue';
 
 export default [
+    {
+        path: '/login',
+        name: 'Login',
+        component: Login,
+        meta: {
+            requiresAuth: false,
+        },
+    },
     {
         path: '/',
         component: Layout,
@@ -12,11 +19,17 @@ export default [
                 name: 'Dashboard',
                 path: 'dashboard',
                 component: DashboardApp,
+                meta: {
+                    requiresAuth: false,
+                },
             },
             {
                 path: '*',
                 redirect: {
                     name: 'Dashboard',
+                },
+                meta: {
+                    requiresAuth: false,
                 },
             },
             {
@@ -24,17 +37,10 @@ export default [
                 redirect: {
                     name: 'Dashboard',
                 },
+                meta: {
+                    requiresAuth: false,
+                },
             }
         ],
     },
-    {
-        path: '/login',
-        name: 'Login',
-        component: Login,
-    },
-    {
-        path: '/register',
-        name: 'Register',
-        component: Register,
-    }
 ];

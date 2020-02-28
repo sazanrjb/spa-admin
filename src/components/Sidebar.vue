@@ -4,12 +4,14 @@
       <template v-slot:prepend>
         <v-list-item two-line>
           <v-list-item-avatar>
-            <img src="https://randomuser.me/api/portraits/men/81.jpg" />
+            <v-avatar color="indigo">
+              <v-icon dark>mdi-account-circle</v-icon>
+            </v-avatar>
           </v-list-item-avatar>
 
           <v-list-item-content>
             <v-list-item-title>Superman</v-list-item-title>
-            <v-list-item-subtitle>Logged In</v-list-item-subtitle>
+            <v-list-item-subtitle>Admin</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
       </template>
@@ -58,7 +60,7 @@
       </v-list>
       <template v-slot:append>
         <div class="pa-2">
-          <v-btn block>Logout</v-btn>
+          <v-btn block @click="logout">Logout</v-btn>
         </div>
       </template>
     </v-navigation-drawer>
@@ -76,6 +78,10 @@ export default {
       drawer: true
     };
   },
-  methods: {}
+  methods: {
+    logout() {
+      this.$router.push({ name: "Login" });
+    }
+  }
 };
 </script>
