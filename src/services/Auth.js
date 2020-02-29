@@ -1,19 +1,20 @@
 import { postLogin } from "@/api/calls";
+import { TOKEN_NAME } from "@/configs";
 
 class Auth {
   attempt(credentials) {
     return postLogin(credentials)
       .then(({ data }) => {
-        localStorage.setItem("auth_token", data.access);
-        return this.payload(data.access);
+        localStorage.setItem(TOKEN_NAME, data.access);
+        return this.getPayload(data.access);
       })
-      .catch((error) => {
+      .catch(error => {
         console.error(error);
-        localStorage.removeItem("auth_token");
+        localStorage.removeItem(TOKEN_NAME);
       });
   }
 
-  payload(token) {
+  getPayload(token) {
     try {
       return JSON.parse(atob(token.split(".")[1]));
     } catch (e) {
@@ -22,7 +23,13 @@ class Auth {
   }
 
   check() {
-    return !!localStorage.getItem("auth_token");
+    const payload = this.getPayload(localStorage.getItem(TOKEN_NAME));
+
+    return !!(payload && payload.email);
+  }
+
+  logout() {
+    return localStorage.removeItem(TOKEN_NAME);
   }
 }
 

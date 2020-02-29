@@ -71,6 +71,8 @@
 </template>
 
 <script>
+import Auth from "@/services/Auth";
+
 export default {
   name: "Sidebar",
   data() {
@@ -80,6 +82,7 @@ export default {
   },
   methods: {
     logout() {
+      Auth.logout();
       this.$router.push({ name: "Login" });
     }
   }
