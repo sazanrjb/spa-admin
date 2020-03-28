@@ -1,4 +1,4 @@
-# SPA Admin
+# SPA Admin Panel Template
 ### A Single Page Application (SPA) scaffold using Vue.js and Vuetify
 
 ## Project setup
