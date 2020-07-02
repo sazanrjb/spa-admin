@@ -9,9 +9,12 @@
                 <v-progress-circular indeterminate size="50"></v-progress-circular>
               </v-overlay>
               <v-toolbar dark flat>
-                <v-toolbar-title>Login</v-toolbar-title>
+                <v-toolbar-title>
+                  <template v-if="!token">Login</template>
+                  <template v-else>Enter OTP</template>
+                </v-toolbar-title>
               </v-toolbar>
-              <ValidationObserver ref="loginForm">
+              <ValidationObserver ref="loginForm" v-if="!token">
                 <form @submit.prevent="login">
                   <v-card-text>
                     <ValidationProvider v-slot="{ errors }" name="Email" rules="required|email">
@@ -42,6 +45,27 @@
                   </v-card-actions>
                 </form>
               </ValidationObserver>
+              <div v-else>
+                <form @submit.prevent="verifyOtp">
+                  <v-card-text>
+                    <ValidationProvider v-slot="{ errors }" name="Otp" rules="required">
+                      <v-text-field
+                        v-model="otp"
+                        label="Otp"
+                        prepend-icon="mdi-lock"
+                        :error-messages="errors"
+                        data-vv-name="otp"
+                        required
+                      />
+                    </ValidationProvider>
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-spacer />
+                    <v-btn color="default" @click="resendOtp">Resend OTP</v-btn>
+                    <v-btn color="primary" @click="verifyOtp">Submit</v-btn>
+                  </v-card-actions>
+                </form>
+              </div>  
             </v-card>
           </v-col>
         </v-row>
@@ -58,6 +82,7 @@ import {
   ValidationProvider,
   setInteractionMode
 } from "vee-validate";
+import { getResendOtp } from '@/api/calls';
 import { required, email, min } from "vee-validate/dist/rules";
 
 setInteractionMode("eager");
@@ -85,7 +110,9 @@ export default {
       credentials: {
         email: "",
         password: ""
-      }
+      },
+      token: null,
+      otp: null,
     };
   },
   methods: {
@@ -95,18 +122,39 @@ export default {
           return;
         }
         this.loading = true;
-        Auth.attempt(this.credentials).then(data => {
+        Auth.attempt(this.credentials).then(token => {
           this.loading = false;
-          if (!data) {
+          if (!token) {
             return;
           }
 
-          // set data
-
-          this.$router.push({ name: "Dashboard" });
+          this.token = token;
         });
       });
-    }
+    },
+    verifyOtp() {
+      this.loading = true;
+      Auth.verifyOtp(this.token, { otp: this.otp }).then(data => {
+        this.loading = false;
+        if (!data) {
+          return;
+        }
+
+        this.$router.push({ name: 'Dashboard' });
+      });
+    },
+    resendOtp() {
+      this.loading = true;
+      return getResendOtp(this.token)
+        .then(({ data }) => {
+          this.loading = false;
+          return data;
+        })
+        .catch(({ response }) => {
+          console.error(response);
+          this.loading = false;
+        });
+    },
   }
 };
 </script>

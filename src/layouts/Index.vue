@@ -1,7 +1,7 @@
 <template>
     <v-app>
         <sidebar></sidebar>
-        <v-content>
+        <v-content style="backgroundColor: #E1E1E1;">
             <v-container fluid>
                 <router-view></router-view>
             </v-container>
