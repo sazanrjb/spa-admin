@@ -1,4 +1,4 @@
-import { postLogin, postVerifyOtp } from "@/api/calls";
+import { postLogin, postVerifyOtp, getResendOtp } from "@/api/calls";
 import { TOKEN_NAME } from "@/configs";
 
 class Auth {
@@ -7,8 +7,9 @@ class Auth {
       .then(({ data }) => {
         return data.token;
       })
-      .catch(() => {
+      .catch((error) => {
         localStorage.removeItem(TOKEN_NAME);
+        return Promise.reject(error);
       });
   }
 
@@ -18,8 +19,19 @@ class Auth {
         localStorage.setItem(TOKEN_NAME, data.access);
         return this.getPayload(data.access);
       })
-      .catch(() => {
+      .catch((error) => {
         localStorage.removeItem(TOKEN_NAME);
+        return Promise.reject(error);
+      });
+  }
+
+  resendOtp(token) {
+    return getResendOtp(token)
+      .then(({ data }) => {
+        return data;
+      })
+      .catch((error) => {
+        return Promise.reject(error);
       });
   }
 

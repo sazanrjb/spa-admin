@@ -45,13 +45,13 @@
                   </v-card-actions>
                 </form>
               </ValidationObserver>
-              <div v-else>
+              <ValidationObserver ref="otpForm" v-else>
                 <form @submit.prevent="verifyOtp">
                   <v-card-text>
-                    <ValidationProvider v-slot="{ errors }" name="Otp" rules="required">
+                    <ValidationProvider v-slot="{ errors }" name="OTP" rules="required|numeric">
                       <v-text-field
                         v-model="otp"
-                        label="Otp"
+                        label="OTP"
                         prepend-icon="mdi-lock"
                         :error-messages="errors"
                         data-vv-name="otp"
@@ -61,11 +61,11 @@
                   </v-card-text>
                   <v-card-actions>
                     <v-spacer />
-                    <v-btn color="default" @click="resendOtp">Resend OTP</v-btn>
-                    <v-btn color="primary" @click="verifyOtp">Submit</v-btn>
+                    <v-btn color="default" @click.prevent="resendOtp">Resend OTP</v-btn>
+                    <v-btn color="primary" @click.prevent="verifyOtp">Submit</v-btn>
                   </v-card-actions>
                 </form>
-              </div>  
+              </ValidationObserver>  
             </v-card>
           </v-col>
         </v-row>
@@ -82,8 +82,7 @@ import {
   ValidationProvider,
   setInteractionMode
 } from "vee-validate";
-import { getResendOtp } from '@/api/calls';
-import { required, email, min } from "vee-validate/dist/rules";
+import { required, email, min, numeric } from "vee-validate/dist/rules";
 
 setInteractionMode("eager");
 extend("required", {
@@ -93,6 +92,10 @@ extend("required", {
 extend("email", {
   ...email,
   message: "{_field_} must be a valid email"
+});
+extend("numeric", {
+  ...numeric,
+  message: "{_field_} must be a numeric"
 });
 extend("min", {
   ...min,
@@ -123,35 +126,61 @@ export default {
         }
         this.loading = true;
         Auth.attempt(this.credentials).then(token => {
-          this.loading = false;
           if (!token) {
             return;
           }
 
           this.token = token;
+          this.$nextTick(() => this.$refs.otpForm.reset());
+          this.$notify('An OTP has been sent to your email');
+        })
+        .catch(error => {
+            this.$notify(
+              (error.response.data && error.response.data.error) ||
+                "Invalid email or password",
+              "error"
+            );
+          })
+        .finally(() => {
+          this.loading = false;
         });
       });
     },
     verifyOtp() {
-      this.loading = true;
-      Auth.verifyOtp(this.token, { otp: this.otp }).then(data => {
-        this.loading = false;
-        if (!data) {
+      this.$refs.otpForm.validate().then(success => {
+        if (!success) {
           return;
         }
+        this.loading = true;
+        Auth.verifyOtp(this.token, { otp: this.otp })
+        .then((data) => {
+          if (!data) {
+            return;
+          }
 
-        this.$router.push({ name: 'Dashboard' });
+          this.$router.push({ name: 'Dashboard' });
+        })
+        .catch((error) => {
+            this.$notify(
+              (error.response.data && error.response.data.error) ||
+                "Invalid OTP",
+              "error"
+            );
+          })
+        .finally(() => {
+          this.loading = false;
+        });
       });
     },
     resendOtp() {
       this.loading = true;
-      return getResendOtp(this.token)
-        .then(({ data }) => {
+      return Auth.resendOtp(this.token)
+        .then(({ status }) => {
           this.loading = false;
-          return data;
+          this.$notify(status);
         })
         .catch(({ response }) => {
-          console.error(response);
+          this.$notify(response.data.error || "Unable to resend OTP", 'error');
           this.loading = false;
         });
     },
