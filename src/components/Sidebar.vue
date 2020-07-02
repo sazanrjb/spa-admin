@@ -19,40 +19,35 @@
       <v-divider></v-divider>
       <v-list nav dense>
         <v-list-item-group active-class="black--text text--accent-4">
-          <v-list-item>
+          <v-list-item @click="navigateTo('Dashboard')">
             <v-list-item-icon>
               <v-icon>mdi-home</v-icon>
             </v-list-item-icon>
             <v-list-item-title>Dashboard</v-list-item-title>
           </v-list-item>
 
-          <v-list-item>
+          <v-list-item @click="navigateTo('TicketList')">
+            <v-list-item-icon>
+              <v-icon>mdi-ticket</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>Tickets</v-list-item-title>
+          </v-list-item>
+
+          <v-list-item @click="navigateTo('UserList')">
             <v-list-item-icon>
               <v-icon>mdi-account</v-icon>
             </v-list-item-icon>
-            <v-list-item-title>Reports</v-list-item-title>
+            <v-list-item-title>Users</v-list-item-title>
           </v-list-item>
 
-          <v-list-group prepend-icon="mdi-ballot">
+          <v-list-group prepend-icon="mdi-cog">
             <v-list-item-content slot="activator">
-              <v-list-item-title>Menu</v-list-item-title>
+              <v-list-item-title>Settings</v-list-item-title>
             </v-list-item-content>
-            <v-list-item>
+            <v-list-item @click="navigateTo('ChangePassword')">
               <v-list-item-action></v-list-item-action>
               <v-list-item-content>
-                <v-list-item-title>Sub Menu</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-            <v-list-item>
-              <v-list-item-action></v-list-item-action>
-              <v-list-item-content>
-                <v-list-item-title>Sub Menu</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-            <v-list-item>
-              <v-list-item-action></v-list-item-action>
-              <v-list-item-content>
-                <v-list-item-title>Sub Menu</v-list-item-title>
+                <v-list-item-title>Change Password</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
           </v-list-group>
@@ -84,6 +79,9 @@ export default {
     logout() {
       Auth.logout();
       this.$router.push({ name: "Login" });
+    },
+    navigateTo(routeName) {
+      this.$router.push({ name: routeName }).catch(() => {});
     }
   }
 };
